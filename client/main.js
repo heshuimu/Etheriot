@@ -12,14 +12,16 @@ var GethPort = '8545';
 
 var GethCoinbase = null;
 
-var ABIString = '[{ "constant": false, "inputs": [{ "name": "x", "type": "uint256"}], "name": "set", "outputs": [], "type": "function"}, { "constant": true, "inputs": [], "name": "get", "outputs": [{ "name": "retVal", "type": "uint256"}], "type": "function"}, { "anonymous": false, "inputs": [{ "indexed": false, "name": "data", "type": "uint256" }], "name": "ItBlinks", "type": "event"}]';
-var ContractAddress = '0x720391DB3f787614d25b6c52056eAE20EeE0825E';
+var ABIString = '[ { "constant": false, "inputs": [ { "name": "s", "type": "address" }, { "name": "v", "type": "uint256" } ], "name": "invoke", "outputs": [], "type": "function" }, { "anonymous": false, "inputs": [ { "indexed": false, "name": "s", "type": "address" }, { "indexed": false, "name": "v", "type": "uint256" } ], "name": "OnReceive", "type": "event" } ]';
+var ContractAddress = '0xf8c4AfB6c71C5FF9A62EF4206C6A675a1D526066';
 var blinker = null;
 var blink_event = null;
 
 var SensorValue = new ReactiveVar('Sensor not activated');
 var IntervalTaskID = null;
 var isSensorActive = false;
+
+var isReceiver = false;
 
 function onSensorSuccess(value)
 {
@@ -88,15 +90,17 @@ Template.ABIInterface.events({
 		web3.eth.defaultAccount = web3.eth.accounts[0];
 		blinker = web3.eth.contract(ABI).at(ContractAddress);
 		console.log("blinker: " + blinker);
-		blink_event = blinker.ItBlinks( {}, function(error, result) {
+		blink_event = blinker.OnReceive( {}, function(error, result) {
 			if (!error) {
-				// when ItBlinks event is fired, output the value 'data' from the result object and the block number
-				var msg = "\n\n*********";
-				msg += "Blink!: " + result.args.data + " (block:" + result.blockNumber + ")";
-				msg += "*********";
-				console.log(msg);
-
-				//DO STUFF...
+				if(result.args.s == GethCoinbase)
+				{
+					console.log('Event invoke ignored since the sender is myself. ');
+				}
+				else
+				{
+					msg += "Received: " + result.args.v + ' from ' + result.args.s;
+					console.log(msg);
+				}
 
 			}
 		});
