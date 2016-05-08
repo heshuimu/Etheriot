@@ -20,21 +20,30 @@ var blink_event = null;
 var SensorValue = new ReactiveVar('Sensor not activated');
 var IntervalTaskID = null;
 var isSensorActive = false;
+var isInvokeAllowed = true;
+var SensorValueThreshold = 25;
 
 var isReceiver = false;
 
 function onSensorSuccess(value)
 {
-	//console.log("ProximityState returned. ");
-	var state = value[0];
-	if (state <= 0)
+	var data = value[0];
+	SensorValue.set(data);
+
+	if (data < SensorValueThreshold)
 	{
-		SensorValue.set('Near');
-		blinker.invoke(GethCoinbase, state);
+		if(isInvokeAllowed)
+		{
+			isInvokeAllowed = false;
+			blinker.invoke(GethCoinbase, data);
+		}
 	}
 	else
 	{
-		SensorValue.set('Far');
+		if(!isInvokeAllowed)
+		{
+			isInvokeAllowed = true;
+		}
 	}
 
 };
@@ -51,6 +60,8 @@ Template.proximity.helpers({
 // sensor plugin reference to: https://github.com/fabiorogeriosj/cordova-plugin-sensors
 Template.proximity.events({
 	'click button'(event, instance) {
+		SensorValueThreshold = instance.find(".SensorThreshold").value;
+		console.log('Threshold: ' + SensorValueThreshold);
 		if(isSensorActive)
 		{
 			sensors.disableSensor();
@@ -61,8 +72,8 @@ Template.proximity.events({
 		else
 		{
 			SensorValue.set('Sensor activating');
-			sensors.enableSensor("PROXIMITY");
-			IntervalTaskID = Meteor.setInterval(function() {sensors.getState(onSensorSuccess);}, 1000);
+			sensors.enableSensor("LIGHT");
+			IntervalTaskID = Meteor.setInterval(function() {sensors.getState(onSensorSuccess);}, 100);
 			isSensorActive = true;
 		}
 	}
@@ -95,12 +106,13 @@ Template.ABIInterface.events({
 			if (!error) {
 				if(result.args.s == GethCoinbase)
 				{
-					console.log('Event invoke ignored since the sender is myself. ');
+					//console.log('Event invoke ignored since the sender is myself. ');
 				}
 				else
 				{
 					console.log("Received: " + result.args.v + ' from ' + result.args.s);
 					SensorValue.set(result.args.v + " (remote)");
+					camera.getPicture(OnCameraSuccess, OnCameraFail, Camera.PictureSourceType.CAMERA);
 				}
 			}
 		});
@@ -153,6 +165,14 @@ function getCoinbase()
 {
 	GethCoinbase = web3.eth.coinbase;
 	console.log(GethCoinbase);
+}
+
+function OnCameraSuccess(photoPath){
+	console.log('Camera get picture successful. Path to picture: ' + photoPath);
+}
+
+function OnCameraFail(errMessage){
+	console.log('Camera encountered an error: ' + errMessage);
 }
 
 
