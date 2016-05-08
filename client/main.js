@@ -100,7 +100,7 @@ Template.ABIInterface.events({
 				else
 				{
 					console.log("Received: " + result.args.v + ' from ' + result.args.s);
-					SensorValue.set(v + " (remote)");
+					SensorValue.set(result.args.v + " (remote)");
 				}
 			}
 		});
