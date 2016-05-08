@@ -30,6 +30,7 @@ function onSensorSuccess(value)
 	if (state <= 0)
 	{
 		SensorValue.set('Near');
+		blinker.invoke(GethCoinbase, state);
 	}
 	else
 	{
@@ -61,7 +62,7 @@ Template.proximity.events({
 		{
 			SensorValue.set('Sensor activating');
 			sensors.enableSensor("PROXIMITY");
-			IntervalTaskID = Meteor.setInterval(function() {sensors.getState(onSensorSuccess);}, 100);
+			IntervalTaskID = Meteor.setInterval(function() {sensors.getState(onSensorSuccess);}, 1000);
 			isSensorActive = true;
 		}
 	}
@@ -98,10 +99,9 @@ Template.ABIInterface.events({
 				}
 				else
 				{
-					msg += "Received: " + result.args.v + ' from ' + result.args.s;
-					console.log(msg);
+					console.log("Received: " + result.args.v + ' from ' + result.args.s);
+					SensorValue.set(v + " (remote)");
 				}
-
 			}
 		});
 	}
