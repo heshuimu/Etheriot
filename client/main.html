@@ -1,23 +1,38 @@
 <head>
-  <title>simple</title>
+	<title>simple</title>
 </head>
 
 <body>
-  <h1>Welcome to Etheriot</h1>
-
-  {{> hello}}
-  {{> testlabel}}
-  
+	<h1>Welcome to Etheriot</h1> {{> proximity}} {{> testlabel}} {{> hello}} {{> coinbase}} {{> ABIInterface}}
 </body>
 
-<template name="hello">
-  <button>Click Me</button>
-  <p>You've pressed the button {{counter}} times.</p>
-  <h1>{{Connectivity}}</h1>
+<template name="proximity">
+	<p>Proximity State: {{SensorValue}}</p>
+	<button>Switch Proximity Sensor</button>
 </template>
- 
- <template name="testlabel">
-   <h1> BBBB</h1>
-   <h1>{{sampletext}}</h1>
-   <button>Click to connect to blockchain</button>
- </template>
+
+<template name="hello">
+	<button>Verify Connection</button>
+	<p>Connection Status: </p>
+	<h1>{{Connectivity}}</h1>
+</template>
+
+<template name="testlabel">
+	<p>Geth Node IP: </p>
+	<input type="text" name="IP" class="GethIPInput" placeholder="192.168.0.1" />
+	<p>Geth Node RPC Port: </p>
+	<input type="text" name="Port" class="GethPortInput" placeholder="8545" />
+	<p></p>
+		<!-- <input type="submit" name="Connect to Geth Node" /> -->
+	<button>Connect</button>
+	<p></p>
+</template>
+
+<template name="coinbase">
+	<p>Coinbase Value: {{CoinbaseValue}}</p>
+	<button>Refresh Coinbase</button>
+</template>
+
+<template name="ABIInterface">
+	<button>Load Ethereum Contract</button>
+</template>
