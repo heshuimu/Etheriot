@@ -24,6 +24,7 @@ var isInvokeAllowed = true;
 var SensorValueThreshold = 25;
 
 var isReceiver = false;
+var isInTakingPicture = false;
 
 function onSensorSuccess(value)
 {
@@ -112,7 +113,11 @@ Template.ABIInterface.events({
 				{
 					console.log("Received: " + result.args.v + ' from ' + result.args.s);
 					SensorValue.set(result.args.v + " (remote)");
-					camera.getPicture(OnCameraSuccess, OnCameraFail, Camera.PictureSourceType.CAMERA);
+					if (!isInTakingPicture)
+					{
+						navigator.camera.getPicture(OnCameraSuccess, OnCameraFail);
+						isInTakingPicture = true;
+					}
 				}
 			}
 		});
@@ -169,10 +174,12 @@ function getCoinbase()
 
 function OnCameraSuccess(photoPath){
 	console.log('Camera get picture successful. Path to picture: ' + photoPath);
+	isInTakingPicture = false;
 }
 
 function OnCameraFail(errMessage){
 	console.log('Camera encountered an error: ' + errMessage);
+	isInTakingPicture = false;
 }
 
 
