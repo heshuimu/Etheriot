@@ -36,6 +36,7 @@ function onSensorSuccess(value)
 		if(isInvokeAllowed)
 		{
 			isInvokeAllowed = false;
+			console.log("*********SENDING TRANSACTION*********");
 			blinker.invoke(GethCoinbase, data);
 		}
 	}
